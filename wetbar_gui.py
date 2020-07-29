@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from PyQt5 import QtWidgets, uic
 import sys 
 import os
