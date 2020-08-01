@@ -2,7 +2,13 @@
 from PyQt5 import QtWidgets, uic, QtCore
 import sys 
 import os
-from pigbmp183 import bmp183
+have_bmp183 = False
+
+try:
+    from pigbmp183 import bmp183
+    have_bmp183 = True
+except:
+    pass
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -12,18 +18,31 @@ class MainWindow(QtWidgets.QMainWindow):
         #Load the UI Page
         uic.loadUi('wetbar.ui', self)
 
-        self.bmp = bmp183()
+        if have_bmp183:
+            self.bmp = bmp183()
+
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.update)
+        self.timer.start(1000)
+
+        self.t = 25
+        self.lcdNumber.display(self.t)
+       
+
+    def update(self):
+        self.measure()
+        self.lcdNumber.display(self.t)
 
     def measure(self):
-        self.bmp.measure_pressure()
-        t = 100
-        if (self.bmp.ID != 85):
-            print("Communication error!")
-            print("Measurement may not be reliable. Chip ID is incorrect.")
-        else:
-            t = bmp.temperature
-            
-        self.lcdNumber.setValue(bmp.temperature)
+        if have_bmp183:
+            self.bmp.measure_pressure()
+            if (self.bmp.ID != 85):
+                print("Communication error!")
+                print("Measurement may not be reliable. Chip ID is incorrect.")
+            else:
+                self.t = bmp.temperature
+
         
         
 def main():
